@@ -101,10 +101,19 @@ struct ResumptionCommands
 	Process::EvaporationOptions evapParams;
 };
 
+struct EmissionCommands
+{
+	EmissionCommands();
+	static void setDefaults(EmissionCommands*, const std::string&);
+
+	std::string iDumpFile;
+	// ***
+	Process::EmissionOptions emissionParams;
+};
 
 struct CommandLineOptions
 {
-	enum { MAKE_INI, RELAXATION, EVAPORATION, RESUMPTION };
+	enum { MAKE_INI, RELAXATION, EVAPORATION, RESUMPTION, EMISSION };
 
 	CommandLineOptions();
 
@@ -127,6 +136,9 @@ struct CommandLineOptions
 	
 	// *** special 'resumption' mode parameters
 	ResumptionCommands resumptionParams;
+
+	// *** special 'emission' mode parameters
+	EmissionCommands emissionParams;
 };
 
 void parseCommandLine(int, char**, CommandLineOptions*);

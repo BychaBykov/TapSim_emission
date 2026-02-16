@@ -230,6 +230,44 @@ void doResumption(CommandLineOptions& options)
 	info::close("resumption-mode");
 }
 
+void doEmission(CommandLineOptions& options)
+{
+	const EmissionCommands& localOptions = options.emissionParams;
+
+	// ***
+
+	info::open("emission-mode");
+
+	System_3d system;
+	system.gridTable.setThreadNum(options.threadNum);
+
+	if (!localOptions.iDumpFile.empty())
+	{
+		unsigned int dumpIndex;
+		
+		info::begin() << "Reading dump from file \"" << localOptions.iDumpFile << "\"" << std::endl;
+		File_Io::readSystem(options.emissionParams.iDumpFile.c_str(),&system,&dumpIndex);
+
+		// ***
+
+		info::begin() << "Initial event index is set to ";
+
+		if (std::numeric_limits<unsigned int>::max() == options.emissionParams.emissionParams.initEventCnt)
+		{
+			options.emissionParams.emissionParams.initEventCnt = dumpIndex;
+			info::out() << "\"" << dumpIndex << "\" (read from dump)";
+		}
+		else
+			info::out() << "\"" << options.emissionParams.emissionParams.initEventCnt << "\"";
+
+		info::out() << std::endl;
+	}
+	options.emissionParams.emissionParams.probMode = 4;
+	Process::emission(localOptions.emissionParams,options.outputHeader,&system);
+	
+	info::close("emission-mode");
+}
+
 int main(const int argc, char** argv)
 {
 	std::srand(99); // initialize random number generator
@@ -346,6 +384,20 @@ int main(const int argc, char** argv)
 
 			break;
 		}
+		case CommandLineOptions::EMISSION:
+		{
+			info::open("emission-mode-options");
+
+			info::begin() << "input dump file: \"" << cmdOptions.emissionParams.iDumpFile << "\"" << std::endl;
+
+			// info::open("evap-options");
+			// Debug::printEvapOptions(&info::out(),cmdOptions.resumptionParams.evapParams);
+			// info::close("evap-options");
+
+			info::close("emission-mode-options");
+
+			break;
+		}
 	}
 	
 	info::close("command-line-options");
@@ -371,6 +423,9 @@ int main(const int argc, char** argv)
 			break;
 		case CommandLineOptions::RESUMPTION:
 			doResumption(cmdOptions);
+			break;
+		case CommandLineOptions::EMISSION:
+			doEmission(cmdOptions);
 		default:
 			break;
 	}

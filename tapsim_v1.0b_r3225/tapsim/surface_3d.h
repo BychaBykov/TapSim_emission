@@ -28,7 +28,7 @@
 
 namespace Surface_3d
 {
-	enum ProbModes { PROB_LINEAR_FIELD, PROB_BOLTZMANN, PROB_LINEAR_FORCE, PROB_VORONOI_FLUX_FORCE } ;
+	enum ProbModes { PROB_LINEAR_FIELD, PROB_BOLTZMANN, PROB_LINEAR_FORCE, PROB_VORONOI_FLUX_FORCE, EMISSION } ;
 	enum EvapModes { EVAP_MAXIMUM, EVAP_MONTE_CARLO };
 	
 	class Node
@@ -90,6 +90,7 @@ namespace Surface_3d
 
 	void evap_compute_specificFields(Table*, const System_3d&);
 	void evap_compute_probabilities(const int, Table*, const System_3d&);
+	void emissionCurrent(Surface_3d::Table* surfaceTable, const System_3d& system,float ref_wf,float ref_pt);
 
 	Nodeset::const_iterator evap_findCandidate(const int, const Table&);
 }

@@ -122,6 +122,36 @@ namespace Process
 	};
 
 	void evaporation(const EvaporationOptions&, const std::string&, System_3d*);
+
+	struct EmissionOptions
+	{
+
+		EmissionOptions();
+
+		static void setDefaults(const char* filename, Process::EmissionOptions* obj);
+		
+		std::string gridFile;
+		int gridMode;
+		unsigned int gridInterval;
+
+		std::string surfaceFile;
+		int surfaceMode;
+		unsigned int surfaceInterval;
+
+		// ***
+		float ref_work_function;
+		float ref_potential;
+
+		std::string vacuumName;
+
+		unsigned int delayTime;
+
+		unsigned int initEventCnt;
+
+		int probMode;
+	};
+	void emission(const EmissionOptions&, const std::string&, System_3d*);
+
 }
 
 #endif

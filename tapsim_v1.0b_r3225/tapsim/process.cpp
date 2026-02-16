@@ -1077,3 +1077,85 @@ void Process::evaporation(const EvaporationOptions& options, const std::string& 
 
 	info::close("evaporation-sequence");
 }
+
+void Process::EmissionOptions::setDefaults(const char* filename, EmissionOptions* obj)
+{
+	std::map<std::string,std::string> defaults;
+
+	if (std::strlen(filename) == 0)
+	{
+		// fall back on internal defaults:
+		
+		std::list<File_Io::KeyValue> defaultParams;
+		makeIniList(&defaultParams);
+
+		for (std::list<File_Io::KeyValue>::const_iterator i = defaultParams.begin(); i != defaultParams.end(); i++)
+		{
+			if (i->first.empty()) continue;
+			const std::pair<std::map<std::string,std::string>::iterator,bool> result = defaults.insert(*i);
+			
+			if (!result.second) throw std::runtime_error("Process::EvaporationOptions::setDefaults(): duplicate default keys!"); 
+		}
+	}
+	else
+		File_Io::readInitialization(filename,&defaults," = ");
+
+	// ***
+
+	std::map<std::string,std::string>::iterator entry;
+
+	entry = defaults.find("GRID_FILENAME");
+	if (defaults.end() == entry)
+		throw std::runtime_error("EmissionOptions::setDefaults(): 'GRID_FILENAME' error!");
+	else
+		obj->gridFile = entry->second;
+	
+	entry = defaults.find("ref_work_function");
+	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%d",&obj->ref_work_function) != 1)
+		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_work_function' error!");
+	
+	entry = defaults.find("ref_potential");
+	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%d",&obj->ref_potential) != 1)
+		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_potential' error!");
+	
+
+}
+
+void Process::emission(const EmissionOptions& options, const std::string& outputHeader, System_3d* system)
+{
+	//surface data
+	File_Io::LogSurface surfaceHandle;
+
+		if (!options.surfaceFile.empty())
+		{
+			surfaceHandle.init(options.surfaceFile.c_str(),system,options.surfaceMode,options.delayTime);
+
+			info::begin() << "Logging surface information in file: \"" << options.surfaceFile << "\"";
+			
+			info::out() << " (";
+
+			if (options.surfaceMode == File_Io::ASCII)
+				info::out() << "acii mode";
+			else
+				info::out() << "binary mode";
+			
+			info::out() << ")" << std::endl;
+		}
+	
+	Surface_3d::Table surfaceTable;
+
+	surfaceTable.setVacuumId(system->configTable[options.vacuumName.c_str()].id());
+
+	info::begin() << "Vacuum cells are defined by cell-type named ";
+	info::out() << "\"" << system->configTable[surfaceTable.vacuumId()].name() << "\"";
+	info::out() << std::endl;
+	
+	surfaceTable.init(*system);
+
+	info::begin() << "Initial number of surface sites: " << surfaceTable.nodes().size() << std::endl;
+
+	Surface_3d::evap_compute_specificFields(&surfaceTable,*system); // initializes the scaling reference value;
+	Surface_3d::emissionCurrent(&surfaceTable,*system,options.ref_work_function,options.ref_potential);
+	if (!options.surfaceFile.empty()) surfaceHandle.push(options.initEventCnt,surfaceTable);
+	info::close("emission");
+}

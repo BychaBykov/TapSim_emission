@@ -844,6 +844,11 @@ namespace
 		else
 			throw std::runtime_error("parseResumptionCommands()");
 	}
+	void parseEmissionCommands(int argc, char** argv, EmissionCommands* options, const std::string& iniFile)
+	{
+		EmissionCommands::setDefaults(options,iniFile);
+
+	}
 }
 
 MakeIniCommands::MakeIniCommands()
@@ -1162,6 +1167,14 @@ void parseCommandLine(int argc, char** argv, CommandLineOptions* options)
 			// *** set global options which are not parsed locally
 			// << empty >>
 		}
+		else if (std::strcmp(argv[optind],"emission") == 0)
+		{
+			options->mode = CommandLineOptions::EMISSION;
+			parseEmissionCommands(argc,argv,&options->emissionParams,options->iniFilename);
+
+			// *** set global options which are not parsed locally
+			// << empty >>
+		}
 		else
 			throw std::runtime_error("parseCommandLine(): Invalid operation mode!");
 	}
@@ -1225,6 +1238,9 @@ void parseCommandLine(int argc, char** argv, CommandLineOptions* options)
 		options->resumptionParams.evapParams.surfaceMode = File_Io::ASCII;
 		options->resumptionParams.evapParams.gridMode = File_Io::ASCII;
 		options->resumptionParams.evapParams.geometryMode = File_Io::ASCII;
+
+		options->emissionParams.emissionParams.surfaceMode = File_Io::ASCII;
+		options->emissionParams.emissionParams.gridMode = File_Io::ASCII;
 	}
 	
 	if (binaryFileOutputMode)
@@ -1243,6 +1259,9 @@ void parseCommandLine(int argc, char** argv, CommandLineOptions* options)
 		options->resumptionParams.evapParams.surfaceMode = File_Io::BINARY;
 		options->resumptionParams.evapParams.gridMode = File_Io::BINARY;
 		options->resumptionParams.evapParams.geometryMode = File_Io::BINARY;
+
+		options->emissionParams.emissionParams.surfaceMode = File_Io::BINARY;
+		options->emissionParams.emissionParams.gridMode = File_Io::BINARY;
 	}
 }
 

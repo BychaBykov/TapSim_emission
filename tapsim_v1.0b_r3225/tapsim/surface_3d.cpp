@@ -397,6 +397,7 @@ namespace
 			const_cast<Surface_3d::Node&>(*i).setProbability(value);
 		}
 	}
+
 }
 
 void Surface_3d::evap_compute_probabilities(const int mode, Table* surfaceTable, const System_3d& system)
@@ -415,6 +416,32 @@ void Surface_3d::evap_compute_probabilities(const int mode, Table* surfaceTable,
 			throw std::runtime_error("Surface_3d::evap_compute_probabilities()");
 	}
 }
+
+void Surface_3d::emissionCurrent(Surface_3d::Table* surfaceTable, const System_3d& system,float ref_wf,float ref_pt)
+{
+	for (Surface_3d::Nodeset::iterator i = surfaceTable->nodes().begin(); i != surfaceTable->nodes().end(); i++)
+	{
+		const Grid_3d::Node& node = system.gridTable.node(i->index());
+		
+		float cur;
+
+		// *** BEGIN BUGFIX +++ PROPER SCALING
+		float surfaceArea(0.0f);
+		// *** END BUGFIX +++ PROPER SCALING
+		float field_strength = system.gridTable.field_o2(i->index(),system.geomTable).length(); 
+		float e = -1.6E-19;
+		float work_function = ref_wf -e*(system.gridTable.potential(i->index()) - ref_pt);
+		float y = e*sqrt(e*field_strength)/work_function;
+		float v = 0.95-1.03*y*y;
+		float nf_a = 1.541434E-6;
+		float nf_b = 6.830890;
+		
+		cur = nf_a*(field_strength)*(field_strength)*exp(-v*nf_b*pow(work_function,1.5)/field_strength)/work_function;
+		const_cast<Surface_3d::Node&>(*i).setProbability(cur);
+		
+	}
+}
+
 
 /* ********** ----------- ********** */
 
