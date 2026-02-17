@@ -34,8 +34,10 @@ with open(input_file, 'r') as f_in:
         z = float(z_str)
         
         # Вычисляем potential = sqrt(x^2 + y^2)
-        potential = math.sqrt(x*x + y*y)
-        
+        if(int(point_id)>3):
+            potential = math.sqrt(x*x + y*y)
+        else:
+            potential = 0.0
         points.append((x, y, z, point_id, float(potential)))
         
         # Для отладки - выведем считанные значения
