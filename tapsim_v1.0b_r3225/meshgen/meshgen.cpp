@@ -453,6 +453,13 @@ void writeTapSim_Nodefile(const char* filename, const TetGen::tetgenio& obj, con
 				//const unsigned int tmpNumber(0); // converts to tapsim invalid number value
 				//output.write(reinterpret_cast<const char*>(&tmpNumber),sizeof(unsigned int));
 			}
+
+			if (obj.pointmtrlist != 0)
+			{
+				const float tmpPotential = static_cast<float>(obj.pointmtrlist[i]);
+				output.write(reinterpret_cast<const char*>(&tmpPotential),sizeof(float));
+			
+			}
 		}
 	}
 	else
