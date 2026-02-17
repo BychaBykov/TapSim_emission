@@ -104,6 +104,7 @@ struct ResumptionCommands
 struct EmissionCommands
 {
 	EmissionCommands();
+	
 	static void setDefaults(EmissionCommands*, const std::string&);
 
 	std::string iDumpFile;

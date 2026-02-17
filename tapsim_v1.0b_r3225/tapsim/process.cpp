@@ -1078,6 +1078,21 @@ void Process::evaporation(const EvaporationOptions& options, const std::string& 
 	info::close("evaporation-sequence");
 }
 
+Process::EmissionOptions::EmissionOptions()
+	: gridFile(),
+	gridMode(0),
+	gridInterval(0),
+	surfaceFile(),
+	surfaceMode(0),
+	surfaceInterval(0),
+	ref_work_function(0.0),
+	ref_potential(0.0),
+	vacuumName(),
+	delayTime(0),
+	initEventCnt(0),
+	probMode(0)
+{}
+
 void Process::EmissionOptions::setDefaults(const char* filename, EmissionOptions* obj)
 {
 	std::map<std::string,std::string> defaults;

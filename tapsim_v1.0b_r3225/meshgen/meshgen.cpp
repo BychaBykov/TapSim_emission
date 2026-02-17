@@ -197,7 +197,7 @@ void writeInitialization(const char* filename, const char* delimiter )
 void readSample(const char* filename, TetGen::tetgenio* obj)
 {
 	std::ifstream input(filename,std::ifstream::in);
-	if (!input.good()) throw std::runtime_error("readSample()");
+	if (!input.good()) throw std::runtime_error("readSample(1)");
 
 	std::string firstLine;
 	std::getline(input,firstLine);
@@ -214,7 +214,7 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 		firstLine = firstLine.substr(6,std::string::npos);
 	}
 	else
-		throw std::runtime_error("readSample()");
+		throw std::runtime_error("readSample(2)");
 	
 	int size;
 
@@ -230,7 +230,7 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 		iParams >> std::noboolalpha >> withNumbers;
 		iParams >> std::noboolalpha >> withPotentials;
 		
-		if (iParams.fail()) throw std::runtime_error("readSample()");
+		if (iParams.fail()) throw std::runtime_error("readSample(3)");
 	}
 	
 	// *** initialize tetgen object
@@ -282,53 +282,53 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 
 			for (int j = 0; j < 3; j++)
 			{
-				if (values.end() == k) throw std::runtime_error("readSample()");
+				if (values.end() == k) throw std::runtime_error("readSample(4)");
 
 				float tmpCoordinate;
 				std::istringstream tmpStream(*k++);
 				tmpStream >> tmpCoordinate;
-				if (tmpStream.fail()) throw std::runtime_error("readSample()");
+				if (tmpStream.fail()) throw std::runtime_error("readSample(5)");
 
 				obj->pointlist[i*3+j] = static_cast<REAL>(tmpCoordinate);
 			}
 
 			if (withIds)
 			{
-				if (values.end() == k) throw std::runtime_error("readSample()");
+				if (values.end() == k) throw std::runtime_error("readSample(6)");
 
 				short tmpId;
 				std::istringstream tmpStream(*k++);
 				tmpStream >> tmpId;
-				if (tmpStream.fail()) throw std::runtime_error("readSample()");
+				if (tmpStream.fail()) throw std::runtime_error("readSample(7)");
 
 				obj->pointmarkerlist[i] = tmpId;
 			}
 
 			if (withNumbers)
 			{
-				if (values.end() == k) throw std::runtime_error("readSample()");
+				if (values.end() == k) throw std::runtime_error("readSample(8)");
 	
 				unsigned int tmpNumber;
 				std::istringstream tmpStream(*k++);
 				tmpStream >> tmpNumber;
-				if (tmpStream.fail()) throw std::runtime_error("readSample()");
+				if (tmpStream.fail()) throw std::runtime_error("readSample(9)");
 
 				obj->pointattributelist[i] = static_cast<REAL>(tmpNumber);
 			}
 
 			if (withPotentials)
 			{
-				if (values.end() == k) throw std::runtime_error("readSample()");
+				if (values.end() == k) throw std::runtime_error("readSample(10)");
 	
 				float tmpPotential;
 				std::istringstream tmpStream(*k++);
 				tmpStream >> tmpPotential;
-				if (tmpStream.fail()) throw std::runtime_error("readSample()");
+				if (tmpStream.fail()) throw std::runtime_error("readSample(11)");
 
 				obj->pointmtrlist[i] = static_cast<REAL>(tmpPotential);
 			}
 			
-			if (values.end() != k) throw std::runtime_error("readSample()"); // check wether all data is read
+			if (values.end() != k) throw std::runtime_error("readSample(12)"); // check wether all data is read
 		}
 	}
 	else
@@ -396,7 +396,7 @@ void writeTapSim_Nodefile(const char* filename, const TetGen::tetgenio& obj, con
 		// neither write numbers nor potentials
 		output << "0 0" << endline;
 
-	if (obj.numberofpointattributes > 1) throw std::runtime_error("writeTapSim_Nodefile(): too many point attributes!");
+	//if (obj.numberofpointattributes > 1) throw std::runtime_error("writeTapSim_Nodefile(): too many point attributes!");
 
 	if (asciiMode == 1)
 	{
@@ -469,7 +469,7 @@ void writeCSV(const char* filename, const TetGen::tetgenio& obj)
 	std::ofstream output(filename,std::ifstream::out);
 	if (!output.good()) throw std::runtime_error("writeTapSim_Nodefile()");
 
-	if (obj.numberofpointattributes > 1) throw std::runtime_error("writeTapSim_Nodefile(): too many point attributes!");
+	//if (obj.numberofpointattributes > 1) throw std::runtime_error("writeTapSim_Nodefile(): too many point attributes!");
 
 	output.setf(std::ios_base::showbase);
 	output.setf(std::ios_base::scientific);

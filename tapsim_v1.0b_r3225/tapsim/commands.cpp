@@ -844,6 +844,7 @@ namespace
 		else
 			throw std::runtime_error("parseResumptionCommands()");
 	}
+	
 	void parseEmissionCommands(int argc, char** argv, EmissionCommands* options, const std::string& iniFile)
 	{
 		EmissionCommands::setDefaults(options,iniFile);
@@ -955,6 +956,22 @@ void ResumptionCommands::setDefaults(ResumptionCommands* obj, const std::string&
 	
 	obj->evapParams.initEventCnt = std::numeric_limits<unsigned int>::max();
 }
+
+EmissionCommands::EmissionCommands()
+	: iDumpFile(),
+	  emissionParams()
+{}
+
+void EmissionCommands::setDefaults(EmissionCommands* obj,const std::string& iniFile)
+{
+	obj->iDumpFile = std::string();
+
+	// ***
+
+	Process::EmissionOptions::setDefaults(iniFile.c_str(),&obj->emissionParams);
+	obj->emissionParams.initEventCnt = std::numeric_limits<unsigned int>::max();
+}
+
 
 // ***
 

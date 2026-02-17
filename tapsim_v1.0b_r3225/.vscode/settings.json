@@ -5,6 +5,11 @@
             "cwd": "/home/vboxuser/Downloads/tapsim_r3225/tapsim_v1.0b_r3225/tapsim",
             "binaryPath": "/home/vboxuser/Downloads/tapsim_r3225/tapsim_v1.0b_r3225/tapsim/tapsim",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/vboxuser/GitRepos/TapSim_emission/tapsim_v1.0b_r3225/meshgen",
+            "binaryPath": "/home/vboxuser/GitRepos/TapSim_emission/tapsim_v1.0b_r3225/meshgen/meshgen",
+            "binaryArgs": []
         }
     ]
 }
