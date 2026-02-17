@@ -1,9 +1,13 @@
 import math
+import os
 
 # Имя входного файла
-input_file = "input.txt"
+input_file = f"{os.getcwd()}/bin/emission_tests/input.txt"
 # Имя выходного файла
-output_file = "emitter.txt"
+output_file = f"{os.getcwd()}/bin/emission_tests/emitter.txt"
+
+print(f"Текущая директория: {os.getcwd()}")
+print(f"Файлы в текущей директории: {os.listdir('.')}")
 
 with open(input_file, 'r') as f_in:
     # Читаем первую строку
@@ -42,8 +46,10 @@ with open(output_file, 'w') as f_out:
     # Записываем заголовок
     f_out.write(f"ASCII {N} 0 1\n")
     
+    i = 1
     # Записываем точки с potential
     for x, y, z, point_id, potential in points:
-        f_out.write(f"{x} {y} {z} {point_id} {potential:e}\n")
+        f_out.write(f"{x}\t{y}\t{z}\t{point_id}\t{i}\t{potential:e}\n")
+        i+=1
 
 print(f"Обработано {N} точек. Результат сохранен в {output_file}")
