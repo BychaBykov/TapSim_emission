@@ -1111,11 +1111,11 @@ void Process::EmissionOptions::setDefaults(const char* filename, EmissionOptions
 		obj->gridFile = entry->second;
 	
 	entry = defaults.find("ref_work_function");
-	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%d",&obj->ref_work_function) != 1)
+	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%e",&obj->ref_work_function) != 1)
 		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_work_function' error!");
 	
 	entry = defaults.find("ref_potential");
-	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%d",&obj->ref_potential) != 1)
+	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%e",&obj->ref_potential) != 1)
 		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_potential' error!");
 	
 
