@@ -1114,7 +1114,6 @@ void Process::EmissionOptions::setDefaults(const char* filename, EmissionOptions
 	}
 	else
 		File_Io::readInitialization(filename,&defaults," = ");
-
 	// ***
 
 	std::map<std::string,std::string>::iterator entry;
@@ -1124,15 +1123,12 @@ void Process::EmissionOptions::setDefaults(const char* filename, EmissionOptions
 		throw std::runtime_error("EmissionOptions::setDefaults(): 'GRID_FILENAME' error!");
 	else
 		obj->gridFile = entry->second;
-	
-	entry = defaults.find("ref_work_function");
-	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%e",&obj->ref_work_function) != 1)
-		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_work_function' error!");
-	
-	entry = defaults.find("ref_potential");
-	if (defaults.end() == entry || std::sscanf(entry->second.c_str(),"%e",&obj->ref_potential) != 1)
-		throw std::runtime_error("EmissionOptions::setDefaults(): 'ref_potential' error!");
-	
+
+	entry = defaults.find("VACUUM_CELL_IDENTIFIER");
+	if (defaults.end() == entry)
+		throw std::runtime_error("EvaporationOptions::setDefaults(): 'VACUUM_CELL_IDENTIFIER' error!");
+	else
+		obj->vacuumName = entry->second;
 
 }
 

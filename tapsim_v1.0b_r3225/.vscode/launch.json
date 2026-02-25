@@ -6,8 +6,8 @@
             "name": "C/C++: g++ build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
-            "args": ["relaxation","config-file", "mesh.bin", "relax.txt"],
+            "program": "${workspaceFolder}/bin/tapsim",
+            "args": ["emission","${workspaceFolder}/bin/config-file", "${workspaceFolder}/bin/emitterRelax.txt", "--write-ascii","--write-surface=surf.txt","--ref-work-function=1.0","--ref-potential=1.0"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
@@ -20,7 +20,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "C/C++: g++ build active file",
+            "preLaunchTask": "make",
             "miDebuggerPath": "/usr/bin/gdb"
         }
     ]

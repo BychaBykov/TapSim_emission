@@ -108,6 +108,10 @@ struct EmissionCommands
 	static void setDefaults(EmissionCommands*, const std::string&);
 
 	std::string iDumpFile;
+	std::string iNodeFile;
+	std::string iConfigFile;
+	
+	
 	// ***
 	Process::EmissionOptions emissionParams;
 };

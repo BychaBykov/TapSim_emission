@@ -847,8 +847,79 @@ namespace
 	
 	void parseEmissionCommands(int argc, char** argv, EmissionCommands* options, const std::string& iniFile)
 	{
+
+		struct option localOptions[] =
+		{
+			// global options: recognized but skipped
+			{ "no-file-output", no_argument, 0, 0 },
+			{ "write-ascii", no_argument, 0, 0 },
+			{ "write-binary", no_argument,0, 0 },
+			{ "threads", required_argument, 0, 0 },
+			{ "ini-file", required_argument, 0, 0 },
+
+			{ "ref-work-function",required_argument, 0, 1},
+			{ "ref-potential",required_argument,0,2},
+
+			{ "no-surfaces", no_argument, 0, 3 },
+			{ "write-surfaces", required_argument, 0 , 3 },
+
+			{0,0,0,0}
+		};
+
 		EmissionCommands::setDefaults(options,iniFile);
 
+				optind = 1; // reset option index
+		opterr = 1; // enable output of error messages by getopt()
+
+		while (true)
+		{
+			int key;
+
+			do
+				key = getopt_long(argc,argv,"",localOptions,0);
+			while (key == 0 || key == '?');
+
+			if (key == -1) break;
+
+			switch (key)
+			{
+				case 1: // --no-trajectories, --write-trajectories
+				{	
+						float value;
+						if (std::sscanf(optarg,"%e",&value) != 1) 
+							throw std::runtime_error("Error parsing 'chunk-size' argument!");
+						
+						options->emissionParams.ref_work_function = value;
+						break;
+				}
+				case 2:
+				{	
+						float value;
+						if (std::sscanf(optarg,"%e",&value) != 1) 
+							throw std::runtime_error("Error parsing 'chunk-size' argument!");
+						
+						options->emissionParams.ref_potential = value;
+						break;
+				}
+				case 3:
+				{
+					if (optarg == 0)
+						options->emissionParams.surfaceFile.clear();
+					else
+						options->emissionParams.surfaceFile = optarg;
+					break;
+				}
+			}
+		}
+
+		if (std::strcmp(argv[optind],"emission") == 0)
+		{
+			//emission config-file relax.txt
+			options->iConfigFile = argv[optind+1];
+			options->iNodeFile = argv[optind+2];
+		}
+		else
+			throw std::runtime_error("parseEvaporationCommands()");
 	}
 }
 
@@ -965,7 +1036,8 @@ EmissionCommands::EmissionCommands()
 void EmissionCommands::setDefaults(EmissionCommands* obj,const std::string& iniFile)
 {
 	obj->iDumpFile = std::string();
-
+	obj->iNodeFile = std::string();
+	obj->iConfigFile = std::string();
 	// ***
 
 	Process::EmissionOptions::setDefaults(iniFile.c_str(),&obj->emissionParams);

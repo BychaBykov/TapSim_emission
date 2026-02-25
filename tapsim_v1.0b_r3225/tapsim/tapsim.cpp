@@ -241,27 +241,31 @@ void doEmission(CommandLineOptions& options)
 	System_3d system;
 	system.gridTable.setThreadNum(options.threadNum);
 
-	if (!localOptions.iDumpFile.empty())
-	{
-		unsigned int dumpIndex;
+	// if (!localOptions.iDumpFile.empty())
+	// {
+	// 	unsigned int dumpIndex;
 		
-		info::begin() << "Reading dump from file \"" << localOptions.iDumpFile << "\"" << std::endl;
-		File_Io::readSystem(options.emissionParams.iDumpFile.c_str(),&system,&dumpIndex);
+	// 	info::begin() << "Reading dump from file \"" << localOptions.iDumpFile << "\"" << std::endl;
+	// 	File_Io::readSystem(options.emissionParams.iDumpFile.c_str(),&system,&dumpIndex);
 
-		// ***
+	// 	// ***
 
-		info::begin() << "Initial event index is set to ";
+	// 	info::begin() << "Initial event index is set to ";
 
-		if (std::numeric_limits<unsigned int>::max() == options.emissionParams.emissionParams.initEventCnt)
-		{
-			options.emissionParams.emissionParams.initEventCnt = dumpIndex;
-			info::out() << "\"" << dumpIndex << "\" (read from dump)";
-		}
-		else
-			info::out() << "\"" << options.emissionParams.emissionParams.initEventCnt << "\"";
+	// 	if (std::numeric_limits<unsigned int>::max() == options.emissionParams.emissionParams.initEventCnt)
+	// 	{
+	// 		options.emissionParams.emissionParams.initEventCnt = dumpIndex;
+	// 		info::out() << "\"" << dumpIndex << "\" (read from dump)";
+	// 	}
+	// 	else
+	// 		info::out() << "\"" << options.emissionParams.emissionParams.initEventCnt << "\"";
 
-		info::out() << std::endl;
-	}
+	// 	info::out() << std::endl;
+	// }
+	if (!localOptions.iConfigFile.empty() && !localOptions.iNodeFile.empty())
+		Process::initialization(localOptions.iConfigFile.c_str(),localOptions.iNodeFile.c_str(),&system);
+	else
+		throw std::runtime_error("doEvaporation()");
 	options.emissionParams.emissionParams.probMode = 4;
 	Process::emission(localOptions.emissionParams,options.outputHeader,&system);
 	
