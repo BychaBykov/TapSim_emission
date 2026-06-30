@@ -430,15 +430,13 @@ void Surface_3d::emissionCurrent(Surface_3d::Table* surfaceTable, const System_3
 		// *** END BUGFIX +++ PROPER SCALING
 		float field_strength = system.gridTable.field_o2(i->index(),system.geomTable).length(); 
 		float e = -1.6E-19;
-		float work_function = ref_wf -e*(system.gridTable.potential(i->index()) - ref_pt);
-		float y = e*sqrt(e*field_strength)/work_function;
+		float work_function = ref_wf + (system.gridTable.potential(i->index()) - ref_pt);
+		float y = e*sqrt(-e*field_strength)/work_function;
 		float v = 0.95-1.03*y*y;
 		float nf_a = 1.541434E-6;
 		float nf_b = 6.830890;
-		
 		cur = nf_a*(field_strength)*(field_strength)*exp(-v*nf_b*pow(work_function,1.5)/field_strength)/work_function;
 		const_cast<Surface_3d::Node&>(*i).setProbability(cur);
-		
 	}
 }
 

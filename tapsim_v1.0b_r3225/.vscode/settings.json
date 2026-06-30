@@ -16,5 +16,7 @@
             "binaryPath": "/home/vboxuser/GitRepos/TapSim_emission/tapsim_v1.0b_r3225/bin/tapsim",
             "binaryArgs": []
         }
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda"
 }

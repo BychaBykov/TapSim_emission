@@ -166,6 +166,9 @@ void File_Io::LogSurface::prepare(const int id, const Surface_3d::Table& surface
 		item.index = i->index();
 		item.type = system.gridTable.id(i->index()).toValue();
 		item.number = system.gridTable.number(i->index()).toValue();
+		item.x = system.geomTable.nodeCoords(i->index()).x();
+		item.y = system.geomTable.nodeCoords(i->index()).y();
+		item.z = system.geomTable.nodeCoords(i->index()).z();
 		item.probability = i->probability();
 
 		obj->cells[item.index] = item;
@@ -193,8 +196,12 @@ void File_Io::LogSurface::prepare(const int id, const Surface_3d::Table& surface
 
 	for (std::map<int,NodeData>::iterator i = obj->nodes.begin(); i != obj->nodes.end(); i++)
 	{
+		i->second.id = system.gridTable.id(i->first).toValue();
 		i->second.phi = system.gridTable.potential(i->first);
 		i->second.field = system.gridTable.field_o1(i->first,system.geomTable);
+		i->second.x = system.geomTable.nodeCoords(i->first).x();
+		i->second.y = system.geomTable.nodeCoords(i->first).y();
+		i->second.z = system.geomTable.nodeCoords(i->first).z();
 	}	
 }
 
@@ -262,6 +269,9 @@ void File_Io::LogSurface::writer(const char* filename, const int ioMode, const D
 			stream << i->second.index << spacer;
 			stream << i->second.type << spacer;
 			stream << i->second.number << spacer;
+			stream << i->second.x << spacer;
+			stream << i->second.y << spacer;
+			stream << i->second.z << spacer;
 			stream << i->second.probability;
 
 			if (withNeighbours)
@@ -280,13 +290,14 @@ void File_Io::LogSurface::writer(const char* filename, const int ioMode, const D
 		for (std::map<int,NodeData>::const_iterator i = obj.nodes.begin(); i != obj.nodes.end(); i++)
 		{
 			stream << i->first << spacer;
+			stream << i->second.id << spacer;
 			stream << i->second.phi << spacer;
 			stream << i->second.field.x() << spacer;
 			stream << i->second.field.y() << spacer;
 			stream << i->second.field.z() << spacer;
-			stream << i->second.normal.x() << spacer;
-			stream << i->second.normal.y() << spacer;
-			stream << i->second.normal.z() << '\n';
+			stream << i->second.x << spacer;
+			stream << i->second.y << spacer;
+			stream << i->second.z << '\n';
 		}
 	}
 

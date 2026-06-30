@@ -7,7 +7,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/tapsim",
-            "args": ["emission","${workspaceFolder}/bin/config-file", "${workspaceFolder}/bin/emitterRelax.txt", "--write-ascii","--write-surface=surf.txt","--ref-work-function=1.0","--ref-potential=1.0"],
+            "args": ["emission","${workspaceFolder}/bin/config-file", "${workspaceFolder}/bin/emitterTestRelax.txt", "--write-ascii","--write-surface=surf.txt","--ref-work-function=4.5","--ref-potential=0.0"],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

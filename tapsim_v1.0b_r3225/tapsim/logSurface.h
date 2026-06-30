@@ -65,7 +65,11 @@ namespace File_Io
 		private:
 			struct NodeData
 			{
+				int id;
 				float phi;
+				float x;
+				float y;
+				float z;
 				MathVector3d<float> field;
 				MathVector3d<float> normal;
 			};
@@ -77,6 +81,10 @@ namespace File_Io
 				short type;
 				unsigned int number;
 				
+				float x;
+				float y;
+				float z;
+
 				float probability;
 
 				std::list<int> neighbours;

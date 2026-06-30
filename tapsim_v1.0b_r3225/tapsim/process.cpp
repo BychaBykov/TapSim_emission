@@ -1167,6 +1167,7 @@ void Process::emission(const EmissionOptions& options, const std::string& output
 
 	Surface_3d::evap_compute_specificFields(&surfaceTable,*system); // initializes the scaling reference value;
 	Surface_3d::emissionCurrent(&surfaceTable,*system,options.ref_work_function,options.ref_potential);
-	if (!options.surfaceFile.empty()) surfaceHandle.push(options.initEventCnt,surfaceTable);
+	// if (!options.surfaceFile.empty()) surfaceHandle.push(options.initEventCnt,surfaceTable);
+	File_Io::write_surfaceCells(options.surfaceFile.c_str(),surfaceTable,*system);
 	info::close("emission");
 }
