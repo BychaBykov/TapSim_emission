@@ -194,8 +194,15 @@ void writeInitialization(const char* filename, const char* delimiter )
 	stream.close();
 }
 
+// vaporate-fix: numberofpointattributes сам по себе не различает
+// "только номера" и "только потенциалы" (в обоих случаях ap == 1).
+// Запоминаем флаги входного файла и используем их при записи.
+static bool g_inputWithNumbers = false;
+static bool g_inputWithPotentials = false;
+
 void readSample(const char* filename, TetGen::tetgenio* obj)
 {
+	
 	std::ifstream input(filename,std::ifstream::in);
 	if (!input.good()) throw std::runtime_error("readSample(1)");
 
@@ -246,15 +253,16 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 		obj->pointmarkerlist = new int[obj->numberofpoints];
 
 	
-	if (withNumbers)
-	{
-		obj->pointattributelist = new REAL[obj->numberofpoints];
-	}
-	if(withPotentials)
-	{
-		obj->pointmtrlist = new REAL[obj->numberofpoints];
-	}
+	// vaporate-fix: всегда держим ДВА атрибута [номер, потенциал].
+	// Так индексы не зависят от того, какие колонки были во входном файле,
+	// а tetgen сам интерполирует оба на новые узлы Штейнера.
+	g_inputWithNumbers = withNumbers;
+	g_inputWithPotentials = withPotentials;
+	ap = 2;
+	obj->pointattributelist = new REAL[obj->numberofpoints * ap];
 	obj->numberofpointattributes = ap;
+	for (int i = 0; i < obj->numberofpoints * ap; i++)
+		obj->pointattributelist[i] = 0.0;
 
 	if (asciiMode)
 	{
@@ -313,7 +321,7 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 				tmpStream >> tmpNumber;
 				if (tmpStream.fail()) throw std::runtime_error("readSample(9)");
 
-				obj->pointattributelist[i] = static_cast<REAL>(tmpNumber);
+				obj->pointattributelist[i*2+0] = static_cast<REAL>(tmpNumber);
 			}
 
 			if (withPotentials)
@@ -325,7 +333,7 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 				tmpStream >> tmpPotential;
 				if (tmpStream.fail()) throw std::runtime_error("readSample(11)");
 
-				obj->pointmtrlist[i] = static_cast<REAL>(tmpPotential);
+				obj->pointattributelist[i*2+1] = static_cast<REAL>(tmpPotential);
 			}
 			
 			if (values.end() != k) throw std::runtime_error("readSample(12)"); // check wether all data is read
@@ -371,7 +379,7 @@ void readSample(const char* filename, TetGen::tetgenio* obj)
 void writeTapSim_Nodefile(const char* filename, const TetGen::tetgenio& obj, const int asciiMode =1)
 {
 	const char endline = '\n';
-
+	std::cout << "in write\n";
 	std::ofstream output(filename,std::ifstream::out);
 	if (!output.good()) throw std::runtime_error("writeTapSim_Nodefile()");
 
@@ -382,19 +390,11 @@ void writeTapSim_Nodefile(const char* filename, const TetGen::tetgenio& obj, con
 
 	output << obj.numberofpoints << " ";
 	
-	if (obj.numberofpointattributes == 2)
-		// write numbers but no potentials
-		output << "1 1" << endline;
-	else if (obj.numberofpointattributes == 1)
-	{
-		if(obj.pointmtrlist != NULL)
-			output << "0 1" << endline;
-		else
-			output << "1 0" << endline;
-	}
-	else
-		// neither write numbers nor potentials
-		output << "0 0" << endline;
+	// vaporate-fix: заголовок строится по флагам ВХОДНОГО файла,
+	// а не угадывается по numberofpointattributes/pointmtrlist
+	const bool outNumbers    = (obj.numberofpointattributes >= 2) && g_inputWithNumbers;
+	const bool outPotentials = (obj.numberofpointattributes >= 2) && g_inputWithPotentials;
+	output << int(outNumbers) << " " << int(outPotentials) << endline;
 
 	//if (obj.numberofpointattributes > 1) throw std::runtime_error("writeTapSim_Nodefile(): too many point attributes!");
 
@@ -416,10 +416,19 @@ void writeTapSim_Nodefile(const char* filename, const TetGen::tetgenio& obj, con
 			else
 				output << short(-1) << spacer;
 
-			if (obj.pointattributelist != 0)
-				output << static_cast<unsigned int>(obj.pointattributelist[i]) << endline;
-			else
-				output << static_cast<unsigned int>(0) << endline;
+			// vaporate-fix: номер = атрибут 0, потенциал = атрибут 1
+			if (outNumbers)
+				output << static_cast<unsigned int>(obj.pointattributelist[i*2+0]) << spacer;
+			if (outPotentials)
+				output << static_cast<float>(obj.pointattributelist[i*2+1]) << spacer;
+			output << endline;
+			
+			// if (obj.pointmtrlist != 0)
+			// {
+			// 	const float tmpPotential = static_cast<float>(obj.pointmtrlist[i]);
+			// 	output.write(reinterpret_cast<const char*>(&tmpPotential),sizeof(float));
+			
+			// }
 		}
 	}
 	else if (asciiMode == 0)
@@ -489,7 +498,7 @@ void writeCSV(const char* filename, const TetGen::tetgenio& obj)
 
 		if (obj.pointmarkerlist != 0){
 			output << obj.pointmarkerlist[i] << spacer;
-			std::cout << (obj.pointmarkerlist[i]) << std::endl;
+			//std::cout << (obj.pointmarkerlist[i]) << std::endl;
 		}
 		else
 			output << short(-1) << spacer;
@@ -966,7 +975,7 @@ void addPoints(TetGen::tetgenio* destination, const TetGen::tetgenio& source, co
 
 		if (pointattributelist != 0)
 		{
-			if (destination->pointattributelist != 0)
+			if (source.pointattributelist != 0)
 			{
 				for (int j = 0; j < source.numberofpointattributes; j++)
 					pointattributelist[index*numberofpointattributes+j] = source.pointattributelist[i*source.numberofpointattributes+j];
@@ -1776,8 +1785,8 @@ class plc_from_triface_hull
 
 					zCoords.push_back(zCoords.back()+deltaZ);
 
-					while (zCoords.back() > contourPoints[index*2] && index < _zContourResolution)
-						index++;
+					while (index < _zContourResolution && zCoords.back() > contourPoints[index*2])
+    					index++;
 				}
 
 				while (zCoords.back() > contourPoints[(_zContourResolution-1)*2])
@@ -3045,9 +3054,9 @@ int main(int argc, char** argv)
 
 	{
 		// *** read file
-
+		
 		readSample(inputParams.filename.c_str(),&input.mesh);
-
+		
 		{
 			const int sizeBefore = input.mesh.numberofpoints;
 			
@@ -3221,7 +3230,7 @@ int main(int argc, char** argv)
 		std::cout << std::endl;
 	}
 
-	meshOutput=true;
+	//meshOutput=true;
 	if (meshOutput)
 	{
 		writeCSV("raw_firstLevel.csv",firstLevel.mesh);
@@ -3655,7 +3664,7 @@ int main(int argc, char** argv)
 
 		if (withFirstLevel)
 		{
-			firstLevel.mesh.numberofpointattributes = 1;
+			firstLevel.mesh.numberofpointattributes = 2;
 			firstLevel.mesh.pointattributelist = new REAL[firstLevel.mesh.numberofpointattributes*firstLevel.mesh.numberofpoints];
 			for (int i = 0; i < firstLevel.mesh.numberofpoints*firstLevel.mesh.numberofpointattributes; i++)
 				firstLevel.mesh.pointattributelist[i] = static_cast<REAL>(0);
@@ -3663,7 +3672,7 @@ int main(int argc, char** argv)
 
 		if (withSecondLevel)
 		{
-			secondLevel.mesh.numberofpointattributes = 1;
+			secondLevel.mesh.numberofpointattributes = 2;
 			secondLevel.mesh.pointattributelist = new REAL[secondLevel.mesh.numberofpointattributes*secondLevel.mesh.numberofpoints];
 			for (int i = 0; i < secondLevel.mesh.numberofpoints*secondLevel.mesh.numberofpointattributes; i++)
 				secondLevel.mesh.pointattributelist[i] = static_cast<REAL>(0);
@@ -3671,7 +3680,7 @@ int main(int argc, char** argv)
 
 		if (withThirdLevel)
 		{
-			thirdLevel.mesh.numberofpointattributes = 1;
+			thirdLevel.mesh.numberofpointattributes = 2;
 			thirdLevel.mesh.pointattributelist = new REAL[thirdLevel.mesh.numberofpointattributes*thirdLevel.mesh.numberofpoints];
 			for (int i = 0; i < thirdLevel.mesh.numberofpoints*thirdLevel.mesh.numberofpointattributes; i++)
 				thirdLevel.mesh.pointattributelist[i] = static_cast<REAL>(0);
@@ -3679,7 +3688,7 @@ int main(int argc, char** argv)
 
 		if (withFourthLevel)
 		{
-			fourthLevel.mesh.numberofpointattributes = 1;
+			fourthLevel.mesh.numberofpointattributes = 2;
 			fourthLevel.mesh.pointattributelist = new REAL[fourthLevel.mesh.numberofpointattributes*fourthLevel.mesh.numberofpoints];
 			for (int i = 0; i < fourthLevel.mesh.numberofpoints*fourthLevel.mesh.numberofpointattributes; i++)
 				fourthLevel.mesh.pointattributelist[i] = static_cast<REAL>(0);
